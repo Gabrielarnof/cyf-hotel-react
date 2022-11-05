@@ -1,10 +1,10 @@
 import React from "react";
 
 import Bookings from "./components/Bookings";
+import Heading from "./components/Heading";
+import Footer from "./components/Footer";
 import "./App.css";
-import Heading from "./components/heading";
 import TouristInfoCards from "./components/TouristInfoCards";
-import footer from "./components/footer";
 
 const App = () => {
   return (
@@ -12,7 +12,7 @@ const App = () => {
       <Heading />
       <TouristInfoCards />
       <Bookings />
-      <footer />
+      <Footer />
     </div>
   );
 };
