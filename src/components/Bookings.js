@@ -1,49 +1,55 @@
 import React, { useState, useEffect } from "react";
 import Search from "./Search.js";
 import SearchResults from "./SearchResults.js";
-import FakeBookings from "../data/fakeBookings.json";
+import Profile from "./Profile";
 
 const Bookings = () => {
   const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [fetched, setFetched] = useState([]);
+  const [userId, setUserId] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const search = searchVal => {
-    console.info("TO DO!", searchVal);
-
-    const newBooks = bookings.filter(booking => {
-      return (
-        booking.surname.toLowerCase().includes(searchVal.toLowerCase()) ||
-        booking.firstName.toLowerCase().includes(searchVal.toLowerCase())
-      );
-    });
-    setBookings(newBooks);
-  };
   useEffect(() => {
-    fetch(`https://cyf-react.glitch.me/`)
+    fetch("https://cyf-react.glitch.me")
       .then(res => res.json())
       .then(data => {
-        if (data.error) {
-          alert(data.error);
-          console.log(data.error);
+        if (data.error !== undefined) {
+          setErrorMessage(data.error);
         } else {
-          console.log("data", data);
+          setFetched(data);
           setBookings(data);
-          setLoading(false);
         }
-      })
-      .catch(error => console.log(error));
+        setIsLoading(false);
+      });
   }, []);
+
+  const search = searchVal => {
+    const filteredResults = fetched.filter((el, i) => {
+      return (
+        searchVal.toUpperCase() === el.firstName.toUpperCase() ||
+        searchVal.toUpperCase() === el.surname.toUpperCase()
+      );
+    });
+    setBookings(filteredResults.length === 0 ? fetched : filteredResults);
+  };
+
+  const showProfile = id => {
+    setUserId(id);
+  };
 
   return (
     <div className="App-content">
       <div className="container">
         <Search search={search} />
-        if (!loading) {<SearchResults results={bookings} />} else{" "}
-        {
-          <div className="alert alert-primary" role="alert">
-            Loading..
-          </div>
-        }
+        {isLoading ? (
+          <div>Cargando</div>
+        ) : errorMessage?.length > 0 ? (
+          <div>{errorMessage}</div>
+        ) : (
+          <SearchResults results={bookings} showProfile={showProfile} />
+        )}
+        {userId !== 0 && <Profile userId={userId} />}
       </div>
     </div>
   );
